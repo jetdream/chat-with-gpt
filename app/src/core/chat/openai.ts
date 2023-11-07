@@ -63,7 +63,7 @@ export async function createChatCompletion(messages: OpenAIMessage[], parameters
         headers: {
             'Accept': 'application/json, text/plain, */*',
             'Authorization': !proxied ? `Bearer ${parameters.apiKey}` : '',
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/json',          
         },
         body: JSON.stringify({
             "model": parameters.model,
@@ -142,6 +142,7 @@ export async function createStreamingChatCompletion(messages: OpenAIMessage[], p
 export const maxTokensByModel = {
     "gpt-3.5-turbo": 4096,
     "gpt-4": 8192,
+    "gpt-4-1106-preview": 128*1024,
     "gpt-4-0613": 8192,
     "gpt-4-32k": 32768,
     "gpt-4-32k-0613": 32768,
