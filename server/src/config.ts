@@ -81,6 +81,11 @@ export interface Config {
         windowMs?: number;
         max?: number;
     };
+
+    /*
+    New users allowed to sign up for an account.
+    */
+    newUserSignup: boolean;
 }
 
 // default config:
@@ -97,7 +102,8 @@ let config: Config = {
         // limit each IP to 100 requests per minute:
         max: 100,
         windowMs: 60 * 1000, // 1 minute
-    }
+    },
+    newUserSignup: true
 };
 
 if (!fs.existsSync('./data')) {
