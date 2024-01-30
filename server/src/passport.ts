@@ -63,7 +63,7 @@ export function configurePassport(context: ChatServer) {
     context.app.post('/chatapi/register', async (req, res, next) => {
         if (!config.newUserSignup) {
             console.error('Registration is disabled.');
-            return res.redirect('/?error=register');
+            return res.redirect('/?error=registration-disabled');
         }
 
         const { username, password } = req.body;

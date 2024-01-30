@@ -12,6 +12,20 @@ const tableNames = {
     yjsUpdates: 'updates',
 };
 
+// App user
+type AppUser = {
+    id: string;
+    email: string;
+    passwordHash: Buffer;
+    salt: Buffer;
+};
+
+// App users list with sensitive information
+type AppUsersList = AppUser[];
+
+// App users list without sensitive information, it is safe to send to the client
+type AppUsersListSafe = Omit<AppUser, 'passwordHash' | 'salt'>[];
+
 export default class KnexDatabaseAdapter extends Database {
     private knex = KnexClient(this.knexConfig);
 
@@ -99,6 +113,19 @@ export default class KnexDatabaseAdapter extends Database {
             salt: row.salt ? Buffer.from(row.salt) : null,
         };
     }
+    
+
+    public async getUsers(): Promise<AppUsersListSafe> {
+
+        const rows = await this.knex(tableNames.authentication).select();
+        return rows.map((row: any) => {
+            return {
+                id: row.id,
+                email: row.email,
+            };
+        });
+    }
+    
 
     public async getChats(userID: string): Promise<any[]> {
         return await this.knex(tableNames.chats)

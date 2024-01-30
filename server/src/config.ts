@@ -86,6 +86,12 @@ export interface Config {
     New users allowed to sign up for an account.
     */
     newUserSignup: boolean;
+
+
+    /*
+    Admin users allowed to access the admin panel.
+    */
+    adminUsers: string[];
 }
 
 // default config:
@@ -103,7 +109,8 @@ let config: Config = {
         max: 100,
         windowMs: 60 * 1000, // 1 minute
     },
-    newUserSignup: true
+    newUserSignup: true,
+    adminUsers: [],
 };
 
 if (!fs.existsSync('./data')) {
