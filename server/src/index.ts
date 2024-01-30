@@ -40,7 +40,7 @@ export default class ChatServer {
     authProvider = 'local';
     app: express.Application;
     objectStore: ObjectStore = process.env.S3_BUCKET ? new S3ObjectStore() : new SQLiteObjectStore();
-    database: Database = new KnexDatabaseAdapter();
+    database: KnexDatabaseAdapter = new KnexDatabaseAdapter();
 
     constructor() {
         this.app = express();
@@ -51,6 +51,7 @@ export default class ChatServer {
         //this.app.use(helmet());
 
         this.app.use(express.urlencoded({ extended: false }));
+        this.app.set('trust proxy', () => true);
 
         if (config.auth0?.clientID && config.auth0?.issuer && config.publicSiteURL) {
             console.log('Configuring Auth0.');
