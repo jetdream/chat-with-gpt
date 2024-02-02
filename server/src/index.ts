@@ -103,6 +103,17 @@ export default class ChatServer {
             this.app.get('/chatapi/proxies/elevenlabs/v1/voices', (req, res) => new ElevenLabsVoicesProxyRequestHandler(this, req, res));
         }
 
+        // Request handler to return list of registered users
+        this.app.get('/chatapi/users', async (req, res) => {
+            let currentUser = (req.user as any)?.username;
+            if (currentUser && config.adminUsers.includes(currentUser)) {
+                const users = await this.database.getUsers();
+                res.send(users);
+            } else {
+                res.status(403).send('Forbidden');
+            }            
+        });
+        
         if (fs.existsSync('public')) {
             const match = /<script>\s*window.AUTH_PROVIDER\s*=\s*"[^"]+";?\s*<\/script>/g;
             const replace = `<script>window.AUTH_PROVIDER="${this.authProvider}"</script>`;
@@ -129,21 +140,7 @@ export default class ChatServer {
             });
         }
 
-        // Add middleware to check for admin users
-        this.app.use((req, res, next) => {
-            let currentUser = (req.user as any)?.username;
-            if (currentUser && config.adminUsers.includes(currentUser)) {
-                next();
-            } else {
-                res.status(403).send('Forbidden');
-            }
-        });
 
-        // Request handler to return list of registered users
-        this.app.get('/chatapi/users', async (req, res) => {
-            const users = await this.database.getUsers();
-            res.send(users);
-        });
 
         await this.objectStore.initialize();
 
