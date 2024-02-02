@@ -31,8 +31,7 @@ export interface OpenAIResponseChunk {
     model?: string;
 }
 
-function parseResponseChunk(buffer: any): OpenAIResponseChunk {
-    const chunk = buffer.toString().replace('data: ', '').trim();
+function parseResponseChunk(chunk: string): OpenAIResponseChunk {
 
     if (chunk === '[DONE]') {
         return {
@@ -121,11 +120,39 @@ export async function createStreamingChatCompletion(messages: OpenAIMessage[], p
         }
 
         try {
-            const chunk = parseResponseChunk(event.data);
-            if (chunk.choices && chunk.choices.length > 0) {
-                contents += chunk.choices[0]?.delta?.content || '';
-                emitter.emit('data', contents);
+            let data = event.data.toString();
+            if (data.startsWith('data: ')) {
+                data = data.substring(6);
             }
+
+            const chunks = data.split("}{");
+            // fix the chunks
+            for (let i = 0; i < chunks.length; i++) {
+                if (i > 0) {
+                    chunks[i] = "{" + chunks[i];
+                }
+                if (i < chunks.length - 1) {
+                    chunks[i] += "}";
+                }
+            }
+
+
+            for (const chunk of chunks) {
+                if (chunk) {
+                    const parsed = parseResponseChunk(chunk);
+                    if (parsed.choices && parsed.choices.length > 0) {
+                        contents += parsed.choices[0]?.delta?.content || '';
+                        emitter.emit('data', contents);
+                    }
+                }
+            }
+
+
+            // const chunk = parseResponseChunk(event.data);
+            // if (chunk.choices && chunk.choices.length > 0) {
+            //     contents += chunk.choices[0]?.delta?.content || '';
+            //     emitter.emit('data', contents);
+            // }
         } catch (e) {
             console.error(e);
         }
